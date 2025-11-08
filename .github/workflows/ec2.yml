@@ -1,7 +1,7 @@
 
 # GitHub YAML configuration
 
-name: Provision t3.micro EC2
+name: Provision an AWS EC2 Instance
 on:
   workflow_dispatch:
     inputs:
