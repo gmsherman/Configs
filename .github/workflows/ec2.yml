@@ -8,8 +8,8 @@ on:
       ec2-name:
         description: EC2 name
         required: true
-        name: 'SRV_EC2'
-        type: string
+  
+      
 jobs:
   provision-ec2:
     runs-on: ubuntu-latest
