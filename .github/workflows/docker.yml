@@ -18,7 +18,7 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.GS_AWS_ACCESS_KEY  }}
           aws-secret-access-key: ${{ secrets.GS_AWS_SECRET_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ secrets.eu-west-1 }}
 
       - name: Launch EC2 Instance
         id: launch_ec2
