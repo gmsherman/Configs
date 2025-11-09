@@ -8,7 +8,7 @@ on:
       ec2-name:
         description: EC2 name
         required: true
-        name: 'GS SRV-EC2'
+        name: 'SRV_EC2'
         type: string
 jobs:
   provision-ec2:
