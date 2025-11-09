@@ -1,0 +1,57 @@
+name: Deploy EC2 with Docker and Nginx
+
+on:
+  push:
+    branches:
+      - main  # or your desired branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.GS_AWS_ACCESS_KEY }}
+          aws-secret-access-key: ${{ secrets.GS_AWS_SECRET_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
+
+      - name: Launch EC2 Instance
+        id: launch_ec2
+        run: |
+          INSTANCE_ID=$(aws ec2 run-instances \
+            --image-id ami-xxxxxxxxx \  # Replace with the desired AMI ID
+            --count 1 \
+            --instance-type t2.micro \  # Change as needed
+            --key-name YourKeyName \  # Replace with your key pair
+            --security-group-ids sg-xxxxxxxxx \  # Security group ID
+            --query 'Instances[0].InstanceId' \
+            --output text)
+          echo "Instance ID: $INSTANCE_ID"
+
+          # Wait until the instance is running
+          aws ec2 wait instance-running --instance-ids $INSTANCE_ID
+
+      - name: Install Docker and Nginx
+        run: |
+          INSTANCE_IP=$(aws ec2 describe-instances \
+            --instance-ids ${{ steps.launch_ec2.outputs.INSTANCE_ID }} \
+            --query 'Reservations[0].Instances[0].PublicIpAddress' \
+            --output text)
+
+          ssh -o StrictHostKeyChecking=no -i YourKeyName.pem ec2-user@$INSTANCE_IP << 'EOF'
+          sudo yum update -y
+          sudo amazon-linux-extras install docker
+          sudo service docker start
+          sudo usermod -a -G docker ec2-user
+          sudo docker run -d -p 80:80 nginx
+          EOF
+
+      - name: Clean Up Instance (optional)
+        if: always()
+        run: |
+          aws ec2 terminate-instances --instance-ids ${{ steps.launch_ec2.outputs.INSTANCE_ID }}
