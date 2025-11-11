@@ -3,7 +3,7 @@ name: Deploy EC2 with Docker and Nginx
 on:
   push:
     branches:
-      - main  # or your desired branch
+      - main 
 
 jobs:
   deploy:
@@ -24,7 +24,7 @@ jobs:
         id: launch_ec2
         run: |
           INSTANCE_ID=$(aws ec2 run-instances \
-            --image-id ami-xxxxxxxxx \  # Replace with the desired AMI ID
+            --image-id ami-0910be1e1d214d762 \  
             --count 1 \
             --instance-type t3.micro \  
             --key-name Docker \  
